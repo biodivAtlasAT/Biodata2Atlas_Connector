@@ -1,9 +1,10 @@
 plugins {
     kotlin("jvm") version "2.3.10"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "at.wenzina"
-version = "1.0-SNAPSHOT"
+version = "1.0"
 
 repositories {
     mavenCentral()
@@ -24,4 +25,11 @@ kotlin {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.shadowJar {
+    archiveClassifier.set("")
+    manifest {
+        attributes["Main-Class"] = "at.wenzina.MainKt"
+    }
 }
