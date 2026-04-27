@@ -1,0 +1,13 @@
+# ATIV API (API_BASE_URL / API_USERNAME / API_PASSWORD)
+api.base.url=https://ativ.example.com
+api.username=user@example.com
+api.password=secret
+
+# Atlas API (API_ATLAS_URL)
+api.atlas.url=https://atlas.example.com
+
+# Pfad zum Ingest-Script (lokal ausfuehren)
+ingest.script=/data/biodata-stack/ativN8NIngest.sh
+
+# Lokales Ausgabeverzeichnis fuer CSV-Reports
+output.dir=/files

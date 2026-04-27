@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Externe Konfiguration: -Dlog4j2.configurationFile=/pfad/zur/log4j2.xml
+  Sync-Log Datei:        -Dbiodata.sync.log=/pfad/zur/sync-log.csv
+  Spalten sync-log.csv:  uuid, project_id, dataResource, error_code, processed_at, generated_at
+-->
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss} %-5level %msg%n"/>
+        </Console>
+
+        <File name="SyncLogFile"
+              fileName="${sys:biodata.sync.log:-sync-log.csv}"
+              append="true">
+            <PatternLayout pattern="%msg%n"/>
+        </File>
+    </Appenders>
+
+    <Loggers>
+        <!-- Dedizierter Logger fuer CSV-Sync-Eintraege, nur in die Datei -->
+        <Logger name="at.wenzina.SyncLog" level="INFO" additivity="false">
+            <AppenderRef ref="SyncLogFile"/>
+        </Logger>
+
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>
