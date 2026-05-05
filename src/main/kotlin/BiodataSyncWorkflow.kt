@@ -41,6 +41,14 @@ class BiodataSyncWorkflow(private val config: AppConfig) {
 
         for (project in changedProjects) {
             log.info("Verarbeite Projekt ${project.id} (${project.dataResource})")
+            if (project.dataResource == null) {
+                log.warn("Projekt ${project.id} hat keine Datenressource und wird nicht verarbeitet!")
+                continue
+            }
+            if (!apiClient.hasZipDownload(authToken, project.id)) {
+                log.debug("  Kein ZIP-Download für Projekt ${project.id}, wird übersprungen")
+                continue
+            }
             try {
                 val result = sshClient.execute("${config.ingestScript} ${project.dataResource}")
                 log.debug("  Exit-Code: ${result.code}")
@@ -82,14 +90,19 @@ class BiodataSyncWorkflow(private val config: AppConfig) {
         }
 
         writeSyncLog(logEntries)
+        log.info("Sync-Lauf beendet, UUID: $importUUID")
     }
 
     private fun writeSyncLog(entries: List<SyncLogEntry>) {
         val generatedAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
-        entries.forEach { e ->
-            val status = if (e.errorCode == 0) "SUCCESS" else "ERROR"
-            syncLog.info("${e.uuid},${e.projectId},${e.dataResource},$status,${e.processedAt},$generatedAt")
+        if (entries.size == 0) {
+            syncLog.info("Output generated at: $generatedAt NO projects found!")
+        } else {
+            entries.forEach { e ->
+                val status = if (e.errorCode == 0) "SUCCESS" else "ERROR"
+                syncLog.info("${e.uuid},${e.projectId},${e.dataResource},$status,${e.processedAt},$generatedAt")
+            }
+            log.info("${entries.size} Einträge in Sync-Log geschrieben")
         }
-        log.info("${entries.size} Einträge in Sync-Log geschrieben")
     }
 }

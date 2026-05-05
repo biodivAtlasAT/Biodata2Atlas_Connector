@@ -66,6 +66,20 @@ class AtivApiClient(private val config: AppConfig) {
         return gson.fromJson(projectsJson, type)
     }
 
+    fun hasZipDownload(authToken: String, projectId: Int): Boolean {
+        val request = Request.Builder()
+            .url("${config.apiAtlasUrl}/api/projects/$projectId/download")
+            .addHeader("accept", "*/*")
+            .addHeader("Authorization", "Bearer $authToken")
+            .get()
+            .build()
+
+        return http.newCall(request).execute().use { response ->
+            val contentType = response.body?.contentType()?.toString() ?: ""
+            contentType.contains("zip", ignoreCase = true)
+        }
+    }
+
     fun setProjectImported(authToken: String, projectId: Int) {
         val request = Request.Builder()
             .url("${config.apiAtlasUrl}/atlas/projects/$projectId/imported?all=true")

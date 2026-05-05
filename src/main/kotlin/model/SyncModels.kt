@@ -2,7 +2,7 @@ package at.wenzina.model
 
 data class Project(
     val id: Int,
-    val dataResource: String,
+    val dataResource: String?,
     val hasChanged: Boolean
 )
 

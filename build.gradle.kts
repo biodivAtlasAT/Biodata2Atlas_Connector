@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.3.10"
+    java
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
@@ -8,6 +9,12 @@ version = "1.0"
 
 repositories {
     mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 dependencies {
@@ -20,7 +27,14 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+    }
+}
+
+tasks.withType<JavaCompile> {
+    options.release.set(11)
 }
 
 tasks.test {
