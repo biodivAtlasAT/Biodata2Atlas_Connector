@@ -28,10 +28,10 @@ class BiodataSyncWorkflow(private val config: AppConfig) {
             log.error("Login fehlgeschlagen – Sync wird abgebrochen: ${e.message}")
             return
         }
-        log.debug("Authentifizierung erfolgreich")
+        log.info("Authentifizierung erfolgreich")
 
         val projects = apiClient.getProjects(authToken)
-        log.debug("${projects.size} Projekte geladen")
+        log.info("${projects.size} Projekte geladen")
 
         val changedProjects = projects.filter { it.hasChanged }
         log.info("${changedProjects.size} von ${projects.size} Projekten haben Änderungen")
@@ -42,16 +42,16 @@ class BiodataSyncWorkflow(private val config: AppConfig) {
         for (project in changedProjects) {
             log.info("Verarbeite Projekt ${project.id} (${project.dataResource})")
             if (project.dataResource == null) {
-                log.warn("Projekt ${project.id} hat keine Datenressource und wird nicht verarbeitet!")
+                log.info("Projekt ${project.id} hat keine Datenressource und wird nicht verarbeitet!")
                 continue
             }
             if (!apiClient.hasZipDownload(authToken, project.id)) {
-                log.debug("  Kein ZIP-Download für Projekt ${project.id}, wird übersprungen")
+                log.info("  Kein ZIP-Download für Projekt ${project.id}, wird übersprungen")
                 continue
             }
             try {
                 val result = sshClient.execute("${config.ingestScript} ${project.dataResource}")
-                log.debug("  Exit-Code: ${result.code}")
+                log.info("  Exit-Code: ${result.code}")
                 if (result.stderr.isNotBlank()) log.warn("  stderr: ${result.stderr.trim()}")
 
                 logEntries += SyncLogEntry(
@@ -64,7 +64,7 @@ class BiodataSyncWorkflow(private val config: AppConfig) {
 
                 if (result.code == 0) {
                     apiClient.setProjectImported(authToken, project.id)
-                    log.debug("  Als importiert markiert")
+                    log.info("  Als importiert markiert")
                 } else {
                     log.error("  Ingest fehlgeschlagen (Code ${result.code}), Projekt wird nicht markiert")
                 }
@@ -95,7 +95,7 @@ class BiodataSyncWorkflow(private val config: AppConfig) {
 
     private fun writeSyncLog(entries: List<SyncLogEntry>) {
         val generatedAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
-        if (entries.size == 0) {
+        if (entries.isEmpty()) {
             syncLog.info("Output generated at: $generatedAt NO projects found!")
         } else {
             entries.forEach { e ->
