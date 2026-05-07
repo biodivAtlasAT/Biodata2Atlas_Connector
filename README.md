@@ -9,4 +9,4 @@ The app makes the following steps:
 The configuration file is: "Biodata2Atlas.properties" which is a parmeter for the script
 example: java -jar Biodata2Atlas_Connector-1.0.jar -v -c Biodata2Atlas.properties
 
-The app is compiled for Java 11
+The app is compiled for Java 11 (gradle java 17)
